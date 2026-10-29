@@ -18,7 +18,8 @@ OWNER=${REPO%/*}
 NAME=${REPO#*/}
 PAGES="https://$(echo "$OWNER" | tr 'A-Z' 'a-z').github.io/$NAME"
 
-cat > manifest.plist <<EOF
+mkdir -p manifests
+cat > "manifests/$TAG.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -54,9 +55,12 @@ cat > manifest.plist <<EOF
 </plist>
 EOF
 
+# manifest.plist always installs the latest release
+cp "manifests/$TAG.plist" manifest.plist
+
 cp "$IPA" "$TMP/Madeira.ipa"
 gh release create "$TAG" "$TMP/Madeira.ipa" --title "Madeira $VERSION ($BUILD)" --notes "$NOTES" --latest
-git add manifest.plist
+git add manifest.plist "manifests/$TAG.plist"
 git commit -qm "Install manifest for $TAG" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 git push -q
 echo "Released $TAG"
