@@ -59,7 +59,7 @@
 </head>
 <body>
 <main>
-  <img class="icon" src="icon.png" alt="">
+  <img id="app-icon" class="icon" src="icon.png" alt="">
   <h1 id="app-name">Madeira</h1>
   <p class="version" id="version">&nbsp;</p>
 
@@ -71,7 +71,7 @@
   <a class="btn" id="install" href="#">Install</a>
   <a class="btn secondary" id="ipa" href="#">Download IPA</a>
 
-  <a class="btn secondary" id="bcd-install" href="itms-services://?action=download-manifest&amp;url=https%3A%2F%2Fvuqar05.github.io%2Fmadeira-download%2Fmanifests%2Fv0.1.626-bcd.plist">Install BCD 0.1.626</a>
+  <a class="btn secondary" id="bcd-install" href="itms-services://?action=download-manifest&amp;url=https%3A%2F%2Fvuqar05.github.io%2Fmadeira-download%2Fmanifests%2Fv0.1.626-bcd-r2.plist">Install BCD 0.1.626</a>
 
   <section class="notes">
     <div id="changes-wrap" class="hidden">
@@ -105,11 +105,13 @@
     const isBCD = asset && asset.name === "BCD-separate.ipa";
     $("app-name").textContent = isBCD ? "BCD" : "Madeira";
     document.title = isBCD ? "BCD" : "Madeira";
+    $("app-icon").src = isBCD ? "bcd-icon.png" : "icon.png";
+    document.querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]').forEach(link => { link.href = isBCD ? "bcd-icon.png" : "icon.png"; });
     $("bcd-install").classList.toggle("hidden", isBCD);
     const size = asset ? " · " + Math.round(asset.size / 1048576) + " MB" : "";
     $("version").textContent = (rel.name || rel.tag_name) + " · " + fmtDate(rel.published_at) + size;
     // Each release has its own manifest; manifest.plist always follows the latest.
-    $("install").href = install(isBCD ? "manifests/" + rel.tag_name + "-bcd.plist" : isLatest ? "manifest.plist" : "manifests/" + rel.tag_name + ".plist");
+    $("install").href = install(isBCD ? "manifests/" + rel.tag_name + "-bcd-r2.plist" : isLatest ? "manifest.plist" : "manifests/" + rel.tag_name + ".plist");
     $("install").textContent = isLatest ? "Install" : "Install this version";
     if (asset) $("ipa").href = asset.browser_download_url;
     const body = (rel.body || "").trim();
