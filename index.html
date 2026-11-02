@@ -71,7 +71,7 @@
   <a class="btn" id="install" href="#">Install</a>
   <a class="btn secondary" id="ipa" href="#">Download IPA</a>
 
-  <p id="bcd-install" class="version">BCD installation is paused while its separate app ID is configured.</p>
+  <a class="btn secondary" id="bcd-install" href="itms-services://?action=download-manifest&amp;url=https%3A%2F%2Fvuqar05.github.io%2Fmadeira-download%2Fmanifests%2Fv0.1.626-bcd.plist">Install BCD 0.1.626</a>
 
   <section class="notes">
     <div id="changes-wrap" class="hidden">
@@ -101,26 +101,17 @@
   $("ipa").href = "https://github.com/" + owner + "/" + repo + "/releases/latest/download/Madeira.ipa";
 
   function show(rel, isLatest) {
-    const asset = (rel.assets || []).find(a => ["Madeira.ipa", "BCD.ipa"].includes(a.name));
-    const isBCD = asset && asset.name === "BCD.ipa";
+    const asset = (rel.assets || []).find(a => ["Madeira.ipa", "BCD-separate.ipa"].includes(a.name));
+    const isBCD = asset && asset.name === "BCD-separate.ipa";
     $("app-name").textContent = isBCD ? "BCD" : "Madeira";
     document.title = isBCD ? "BCD" : "Madeira";
     $("bcd-install").classList.toggle("hidden", isBCD);
     const size = asset ? " · " + Math.round(asset.size / 1048576) + " MB" : "";
     $("version").textContent = (rel.name || rel.tag_name) + " · " + fmtDate(rel.published_at) + size;
     // Each release has its own manifest; manifest.plist always follows the latest.
-    $("install").href = install(isLatest ? "manifest.plist" : "manifests/" + rel.tag_name + ".plist");
+    $("install").href = install(isBCD ? "manifests/" + rel.tag_name + "-bcd.plist" : isLatest ? "manifest.plist" : "manifests/" + rel.tag_name + ".plist");
     $("install").textContent = isLatest ? "Install" : "Install this version";
     if (asset) $("ipa").href = asset.browser_download_url;
-    if (isBCD) {
-      $("install").removeAttribute("href");
-      $("install").setAttribute("aria-disabled", "true");
-      $("install").textContent = "BCD signing update in progress";
-      $("ipa").classList.add("hidden");
-    } else {
-      $("install").removeAttribute("aria-disabled");
-      $("ipa").classList.remove("hidden");
-    }
     const body = (rel.body || "").trim();
     $("changes").textContent = body;
     $("changes-wrap").classList.toggle("hidden", !body);
@@ -129,7 +120,7 @@
   fetch("https://api.github.com/repos/" + owner + "/" + repo + "/releases?per_page=100")
     .then(r => r.ok ? r.json() : [])
     .then(list => {
-      const releases = list.filter(r => !r.draft && (r.assets || []).some(a => ["Madeira.ipa", "BCD.ipa"].includes(a.name)));
+      const releases = list.filter(r => !r.draft && (r.assets || []).some(a => ["Madeira.ipa", "BCD-separate.ipa"].includes(a.name)));
       if (!releases.length) return;
       const latest = releases.find(r => !r.prerelease && r.assets.some(a => a.name === "Madeira.ipa")) || releases[0];
       const picker = $("picker");
