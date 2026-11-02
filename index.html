@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Madeira</title>
-<meta name="description" content="Install Madeira on your iPhone or iPad.">
+<title>Madeira &amp; BCD</title>
+<meta name="description" content="Install Madeira and BCD on your iPhone or iPad.">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" href="icon.png">
 <style>
@@ -60,7 +60,7 @@
 <body>
 <main>
   <img class="icon" src="icon.png" alt="">
-  <h1>Madeira</h1>
+  <h1 id="app-name">Madeira</h1>
   <p class="version" id="version">&nbsp;</p>
 
   <label class="picker hidden" id="picker-wrap">
@@ -70,6 +70,8 @@
 
   <a class="btn" id="install" href="#">Install</a>
   <a class="btn secondary" id="ipa" href="#">Download IPA</a>
+
+  <a class="btn secondary" id="bcd-install" href="itms-services://?action=download-manifest&amp;url=https%3A%2F%2Fvuqar05.github.io%2Fmadeira-download%2Fmanifests%2Fv0.1.626.plist">Install BCD 0.1.626</a>
 
   <section class="notes">
     <div id="changes-wrap" class="hidden">
@@ -99,7 +101,11 @@
   $("ipa").href = "https://github.com/" + owner + "/" + repo + "/releases/latest/download/Madeira.ipa";
 
   function show(rel, isLatest) {
-    const asset = (rel.assets || []).find(a => a.name === "Madeira.ipa");
+    const asset = (rel.assets || []).find(a => ["Madeira.ipa", "BCD.ipa"].includes(a.name));
+    const isBCD = asset && asset.name === "BCD.ipa";
+    $("app-name").textContent = isBCD ? "BCD" : "Madeira";
+    document.title = isBCD ? "BCD" : "Madeira";
+    $("bcd-install").classList.toggle("hidden", isBCD);
     const size = asset ? " · " + Math.round(asset.size / 1048576) + " MB" : "";
     $("version").textContent = (rel.name || rel.tag_name) + " · " + fmtDate(rel.published_at) + size;
     // Each release has its own manifest; manifest.plist always follows the latest.
@@ -114,9 +120,9 @@
   fetch("https://api.github.com/repos/" + owner + "/" + repo + "/releases?per_page=100")
     .then(r => r.ok ? r.json() : [])
     .then(list => {
-      const releases = list.filter(r => !r.draft && (r.assets || []).some(a => a.name === "Madeira.ipa"));
+      const releases = list.filter(r => !r.draft && (r.assets || []).some(a => ["Madeira.ipa", "BCD.ipa"].includes(a.name)));
       if (!releases.length) return;
-      const latest = releases.find(r => !r.prerelease) || releases[0];
+      const latest = releases.find(r => !r.prerelease && r.assets.some(a => a.name === "Madeira.ipa")) || releases[0];
       const picker = $("picker");
       releases.forEach(r => {
         const o = document.createElement("option");
