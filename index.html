@@ -71,7 +71,7 @@
   <a class="btn" id="install" href="#">Install</a>
   <a class="btn secondary" id="ipa" href="#">Download IPA</a>
 
-  <a class="btn secondary" id="bcd-install" href="itms-services://?action=download-manifest&amp;url=https%3A%2F%2Fvuqar05.github.io%2Fmadeira-download%2Fmanifests%2Fv0.1.626.plist">Install BCD 0.1.626</a>
+  <p id="bcd-install" class="version">BCD installation is paused while its separate app ID is configured.</p>
 
   <section class="notes">
     <div id="changes-wrap" class="hidden">
@@ -112,6 +112,15 @@
     $("install").href = install(isLatest ? "manifest.plist" : "manifests/" + rel.tag_name + ".plist");
     $("install").textContent = isLatest ? "Install" : "Install this version";
     if (asset) $("ipa").href = asset.browser_download_url;
+    if (isBCD) {
+      $("install").removeAttribute("href");
+      $("install").setAttribute("aria-disabled", "true");
+      $("install").textContent = "BCD signing update in progress";
+      $("ipa").classList.add("hidden");
+    } else {
+      $("install").removeAttribute("aria-disabled");
+      $("ipa").classList.remove("hidden");
+    }
     const body = (rel.body || "").trim();
     $("changes").textContent = body;
     $("changes-wrap").classList.toggle("hidden", !body);
